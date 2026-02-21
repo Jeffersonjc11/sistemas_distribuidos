@@ -1,0 +1,44 @@
+services:
+  gateway:
+    build:
+      context: ./gateway
+    container_name: dist_gateway
+    environment:
+      PORT: 8000
+      SERVICE_A_URL: http://service-a:8001
+      SERVICE_B_URL: http://service-b:8002
+      SERVICE_C_URL: http://service-c:8003
+    depends_on:
+      - service-a
+      - service-b
+      - service-c
+    ports:
+      - "8000:8000"
+
+  service-a:
+    build:
+      context: ./service-a
+    container_name: dist_service_a
+    environment:
+      PORT: 8001
+    expose:
+      - "8001"
+
+  service-b:
+    build:
+      context: ./service-b
+    container_name: dist_service_b
+    environment:
+      PORT: 8002
+    expose:
+      - "8002"
+
+  service-c:
+    build:
+      context: ./service-c
+    container_name: dist_service_c
+    environment:
+      PORT: 8003
+    expose:
+      - "8003"
+

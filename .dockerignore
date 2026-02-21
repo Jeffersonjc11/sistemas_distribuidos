@@ -1,0 +1,23 @@
+# Ignore git metadata
+.git
+.gitignore
+
+# Python cache
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+
+# Virtual environments
+.venv
+venv
+
+# Build/test artifacts
+.pytest_cache
+.mypy_cache
+.coverage
+htmlcov
+
+# Logs
+*.log
+
