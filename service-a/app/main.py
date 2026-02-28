@@ -1,21 +1,20 @@
 from fastapi import FastAPI
 
-app = FastAPI(title="Service A")
+from app.controllers.identity_controller import router as identity_router
+from app.core.dependencies import build_identity_service, get_settings
 
 
-@app.get("/health")
-def health() -> dict:
-    return {"service": "service-a", "status": "ok"}
+def create_application() -> FastAPI:
+    settings = get_settings()
+    app = FastAPI(title=settings.service_name)
+
+    @app.on_event("startup")
+    def on_startup() -> None:
+        # Startup keeps main clean: schema and seed are delegated to the service layer.
+        build_identity_service().bootstrap()
+
+    app.include_router(identity_router)
+    return app
 
 
-@app.get("/data")
-def data() -> dict:
-    return {
-        "service": "service-a",
-        "domain": "usuarios",
-        "data": [
-            {"id": 1, "name": "Ana"},
-            {"id": 2, "name": "Luis"},
-        ],
-    }
-
+app = create_application()

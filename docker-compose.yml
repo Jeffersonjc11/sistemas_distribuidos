@@ -1,26 +1,50 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: dist_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
   gateway:
     build:
       context: ./gateway
     container_name: dist_gateway
     environment:
       PORT: 8000
-      SERVICE_A_URL: http://service-a:8001
+      IDENTITY_SERVICE_URL: http://identity-service:8001
       SERVICE_B_URL: http://service-b:8002
       SERVICE_C_URL: http://service-c:8003
     depends_on:
-      - service-a
+      - identity-service
       - service-b
       - service-c
     ports:
       - "8000:8000"
 
-  service-a:
+  identity-service:
     build:
       context: ./service-a
-    container_name: dist_service_a
+    container_name: dist_identity_service
     environment:
       PORT: 8001
+      SERVICE_NAME: identity-service
+      DATABASE_URL: postgresql://identity_user:identity_pass@postgres:5432/db_identity
+    depends_on:
+      postgres:
+        condition: service_healthy
     expose:
       - "8001"
 
@@ -30,6 +54,10 @@ services:
     container_name: dist_service_b
     environment:
       PORT: 8002
+      DATABASE_URL: postgresql://ops_user:ops_pass@postgres:5432/db_parking_ops
+    depends_on:
+      postgres:
+        condition: service_healthy
     expose:
       - "8002"
 
@@ -39,6 +67,12 @@ services:
     container_name: dist_service_c
     environment:
       PORT: 8003
+      DATABASE_URL: postgresql://billing_user:billing_pass@postgres:5432/db_billing
+    depends_on:
+      postgres:
+        condition: service_healthy
     expose:
       - "8003"
 
+volumes:
+  pgdata:
