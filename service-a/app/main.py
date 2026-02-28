@@ -4,6 +4,7 @@ from app.controllers.identity_controller import router as identity_router
 from app.core.dependencies import build_identity_service, get_settings
 
 
+
 def create_application() -> FastAPI:
     settings = get_settings()
     app = FastAPI(title=settings.service_name)
