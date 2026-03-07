@@ -90,3 +90,9 @@ Detener:
 docker compose down
 ```
 
+## Skills locales (Codex)
+
+Se agrego una guia de uso para las skills instaladas en este proyecto:
+
+- `docs/skills.md`
+
